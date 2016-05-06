@@ -27,6 +27,9 @@ function run(line, gridRatio) {
   if (!line.primitive ||
       (line.primitive !== "polyline" && line.primitive !== "curve")) {
     throw new Error('Input must be either a Flux polyline or curve object.')
+  } else if (line.primitive === "curve") {
+    console.warn('Warning: This block "rasterizes curves", ' +
+        'but only the lines between their control points.')
   }
   gridRatio = gridRatio || 1;
   var points = line.primitive === "polyline" ? line.points : line.controlPoints;
