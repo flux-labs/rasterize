@@ -3,29 +3,33 @@
 /**
  * Simple conversion of 2d vectors to rasters.
  *
- * Takes in Flux lines or polylines and a gridding ratio (number of grid points
- * per vector coordinate units) and produces a couple useful raster outputs.
+ * Takes in Flux lines polylines, or curves and a gridding ratio (number of grid
+ * points per vector coordinate units) and produces a couple useful raster
+ * outputs.
  *
  * Works off of this description of Bresenham's algorithm:
  * http://members.chello.at/easyfilter/bresenham.pdf
  *
- * @param {Object} polyline Flux polyline object to be rasterized. The polyline
+ * @param {Object} line Flux polyline or curve object to be rasterized. The line
  *     is rasterized only on the [x,y] plane. All z-coordinates are ignored.
+ *     Only curves' control points are rendered, rasterizing curves as very rough
+ *     straight-line approximations
  * @param {Number} gridRatio Ratio of grid points to every coordinate unit used
- *     to define the polylines. E.g. a gridRatio of 2 would put grid points at
+ *     to define the lines. E.g. a gridRatio of 2 would put grid points at
  *     every half unit, and a gridRatio of 0.5 would but grid points at ever two
  *     units.
  *
  * @return {Object} A return object with a "pixels" property. The "points"
  *     property is an array of [x,y] coordinates for the grid points
- *     corresponding to the rasterized polyline.
+ *     corresponding to the rasterized line.
  */
-function run(polyline, gridRatio) {
-  if (!polyline.primitive || !polyline.primitive === "polyline") {
-    throw new Error('Input must be a Flux polyline object.')
+function run(line, gridRatio) {
+  if (!line.primitive ||
+      (line.primitive !== "polyline" && line.primitive !== "curve")) {
+    throw new Error('Input must be either a Flux polyline or curve object.')
   }
   gridRatio = gridRatio || 1;
-  var points = polyline.points;
+  var points = line.primitive === "polyline" ? line.points : line.controlPoints;
   var pixels = [];
   for (var i = 0; i < (points.length - 1); i++) {
     var point = points[i];
