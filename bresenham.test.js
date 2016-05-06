@@ -69,6 +69,8 @@ test('lines are converted to pixels correctly.', function(t) {
   t.deepEqual(bresenham.linePixels(0.49,0, 0.49,1), [[0,0], [0,1]]);
   t.deepEqual(bresenham.linePixels(0.51,0, 0.51,1), [[1,0], [1,1]]);
   t.deepEqual(bresenham.linePixels(0.49,0, 1.49,1), [[0,0], [1,1]]);
+  t.deepEqual(bresenham.linePixels(0.49,0.49, 1.49,1.49), [[0,0], [1,1]]);
+  t.deepEqual(bresenham.linePixels(0.51,0.51, 1.51,1.51), [[1,1], [2,2]]);
 
   // TODO(eric): Make Non-integer endpoints more reliable. The following tests
   // will fail, currently. They seem to be producing visually-acceptable

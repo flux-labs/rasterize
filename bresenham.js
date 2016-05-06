@@ -59,17 +59,21 @@ function linePixels(startX, startY, endX, endY) {
       e2;
 
   var pixels = [];
-
+  startX = Math.round(startX);
+  startY = Math.round(startY);
+  endX = Math.round(endX);
+  endY = Math.round(endY);
   while(1) {
     // TODO(eric): Simple rounding allows us to pass in non-integer line
     // coordinates and get out proper integer grid coordinates. See the tests,
     // however: the results seem visually consistent, but not strictly correct.
     // Beware of inconsistencies/discontinuities that may crop up.
     pixels.push([
-      Math.round(startX),
-      Math.round(startY)
+      startX,
+      startY
     ]);
     e2 = 2 * err;
+    // console.log(e2, 2 * err, dx, dy);
     if (e2 >= dy) {
       if (startX === endX) { break; }
       err += dy;
