@@ -11,7 +11,7 @@ import test from 'tape';
 
 import bresenham from './bresenham.js';
 
-test('The Bresenham block properly rasterizes polylines', function(t) {
+test('The Bresenham block does not accept improper values', function(t) {
   function assertTypeError(polyline, msg) {
     var errMsg;
     try {
@@ -19,9 +19,19 @@ test('The Bresenham block properly rasterizes polylines', function(t) {
     } catch(e) {
       errMsg = e.message;
     }
-    t.equal(errMsg, 'Input must be a Flux polyline object.', msg)
+    t.equal(errMsg, 'Input must be either a Flux polyline or curve object.', msg)
   }
+  assertTypeError({}, 'Plain object throws exception.');
+  assertTypeError([], 'Plain array throws exception.');
+  assertTypeError({
+    point: [],
+    primitive: 'point'
+  }, 'Point throws exception.');
 
+  t.end();
+});
+
+test('The Bresenham block properly rasterizes polylines', function(t) {
   function test(points, gridRatio, expectedValue, msg) {
     var out = bresenham.run({
       primitive: 'polyline',
@@ -30,9 +40,32 @@ test('The Bresenham block properly rasterizes polylines', function(t) {
     t.deepEqual(out.pixels, expectedValue, msg);
   }
 
-  assertTypeError({}, 'Plain object throws exception.');
-  assertTypeError([], 'Plain array throws exception.');
+  test([], 1, [], 'No points');
+  test([[0,0], [1,1]], 1, [[0,0], [1,1]],
+      'Single line segment');
+  test([[0,0,9], [1,1,9]], 1, [[0,0], [1,1]],
+      'Z-coordinates are ignored.');
+  test([[0,0], [1,1]], 2, [[0,0], [1,1], [2,2]],
+      'Single line segment, double sampled.');
+  test([[0,0], [1,0], [1,1]], 2, [[0,0], [1,0], [2,0], [2,1], [2,2]],
+      'Multi-line segment, double sampled.');
 
+  t.end();
+});
+
+test('The Bresenham block "properly" rasterizes curves', function(t) {
+  function test(points, gridRatio, expectedValue, msg) {
+    var out = bresenham.run({
+      primitive: 'curve',
+      controlPoints: points,
+      degree: 3,
+      knots: []
+    }, gridRatio);
+    t.deepEqual(out.pixels, expectedValue, msg);
+  }
+
+  // Duplicates polyline tests, above. Mostly just a test of the data format,
+  // until we support actual curves.
   test([], 1, [], 'No points');
   test([[0,0], [1,1]], 1, [[0,0], [1,1]],
       'Single line segment');
